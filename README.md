@@ -8,8 +8,7 @@ This is a simple ray tracing program written in C++. It renders an image with a 
 - "output.ppm": The rendered image in PPM format.
 
 ## How to Use
-1. Compile the source code using a C++ compiler like g++:
-   g++ -o raytracer raytracer.cpp
+1. Compile the source code using a C++ compiler
 
 2. Run the compiled program:
    ./raytracer

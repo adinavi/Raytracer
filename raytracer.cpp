@@ -48,19 +48,48 @@ Vec3 ray_color(const Ray& ray) {
     Vec3 sphere_center(0, 0, -1);
     double sphere_radius = 0.5;
     double t;
+
+    // Light source position and color
+    Vec3 light_position(2, 2, 0);  // Light coming from a certain direction
+    Vec3 light_color(1, 1, 1);  // White light
+
+    // Material properties of the sphere
+    Vec3 sphere_color(1, 0, 0);  // Red color for the sphere
+    double shininess = 16;  // Shininess factor for specular highlight
+
+    // Check for sphere intersection
     if (hit_sphere(sphere_center, sphere_radius, ray, t)) {
-        return Vec3(1, 0, 0); // Red sphere
+        Vec3 hit_point = ray.origin + ray.direction * t;
+        Vec3 normal = (hit_point - sphere_center).normalize();
+
+        // Ambient lighting
+        Vec3 ambient_light(0.1, 0.1, 0.1);  // Low intensity ambient light
+
+        // Diffuse lighting (Lambertian reflection)
+        Vec3 light_dir = (light_position - hit_point).normalize();
+        double diff = std::max(0.0, normal.dot(light_dir));
+        Vec3 diffuse_color = sphere_color * diff;
+
+        // Specular lighting (Phong reflection model)
+        Vec3 view_direction = (Vec3(0, 0, 0) - hit_point).normalize();  // Camera at the origin
+        Vec3 reflection = normal * 2.0 * normal.dot(light_dir) - light_dir;  // Reflection vector
+        double spec = std::pow(std::max(view_direction.dot(reflection), 0.0), shininess);
+        Vec3 specular_color = light_color * spec;
+
+        // Combine ambient, diffuse, and specular lighting
+        return ambient_light + diffuse_color + specular_color;
     }
 
+    // Check for plane intersection (using the same lighting model)
     Vec3 plane_point(0, -0.5, -1);
     Vec3 plane_normal(0, 1, 0);
     if (hit_plane(plane_point, plane_normal, ray, t)) {
-        return Vec3(0.5, 0.5, 0.5); // Gray plane
+        return Vec3(0.5, 0.5, 0.5);  // Gray plane with simple color
     }
 
-    // Background gradient
+    // Background gradient (sky)
     Vec3 unit_direction = ray.direction.normalize();
-    t = 0.5 * (unit_direction.y + 1.0);
+    double t = 0.5 * (unit_direction.y + 1.0);
     return Vec3(1.0, 1.0, 1.0) * (1.0 - t) + Vec3(0.5, 0.7, 1.0) * t;
 }
 
